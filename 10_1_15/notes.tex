@@ -1,0 +1,156 @@
+%==============================================================================
+% Notes for CSCI 2951-F (Fall 2015)
+%==============================================================================
+\newcommand{\thishw}{\bf Complexity Reading Group 10/1/2015}
+\newcommand{\myname}{David Abel}
+
+%==============================================================================
+% Mini Preamble.
+%==============================================================================
+
+\documentclass[11pt]{article} % 10pt article, want AMS fonts.
+\makeatletter					% Make '@' accessible.
+\pagestyle{myheadings}				% We do our own page headers.
+\def\@oddhead{\bf Circuits \hfill \myname} % Here they are.
+\skip\footins=4ex				% Space above first footnote.
+\hbadness=10000					% No "underfull hbox" messages.
+\makeatother					% Make '@' special again.
+\input{p.tex}
+
+
+%==============================================================================
+% Title.
+%==============================================================================
+
+\begin{document}
+\centerline{\LARGE\thishw}
+
+% -- SECTION: Circuit --
+\section{Circuit}
+
+\begin{itemize}
+\item $C_n$ n-input circuit
+\item DAG n sources and 1 sink
+\item All non sources labelled with $\wedge, \vee \neg$
+\item $|C|$ = number of vertices
+%\item Assuming $f$ input bits, there will be $f-1$ gates.
+\end{itemize}
+
+% -- SECTION: Circuit Families --
+\section{Circuit Families}
+
+Different circuit depending on what $n$ is in. Specifcally, have a function $T(n)$ that determines the size of the circuit. $\forall_n : |C_n| \leq T(n)$.
+
+\thm{Definition}{1}{A language $\mathcal{L}$ is in \textsc{Size}$(T(n))$ if $\exists : T(n)$-sized circuit family s.t. $\forall_x \in \{0,1\}^n x \in \mathcal{L} \equiv C_n (x) = 1$.}
+
+\thm{Definition}{2}{$P_{\text{poly}}$ is the class of languages decidable by polynomially sized circuit families:
+\begin{equation*}
+P_{\text{poly}} = \cup_c \textsc{Size}(n^c)
+\end{equation*}}
+
+
+\elem{Claim:} $p \subseteq P_{\text{poly}}: \mathcal{L} \in P \rightarrow P_{\text{poly}}$, where $\mathcal{L}$ is a language, $P$ is the complexity class.
+
+wts: $\forall : T(n)$-time Turing Machines $M$< $\exists : \mathcal{O}(T(n))$ sized circuit fam:
+\begin{equation*}
+\{C_n\}_{m \in \mathbb{N}} : C_n(x) = M(x), \forall_x : x \in \{0,1\}^n
+\end{equation*}
+
+\thm{Definition}{3}{Oblivious Turing Machine is a machine where head movements depend on $|x|$ but not on contents of $x$.}
+
+\subsection{Proof about circuit family relation to TM}
+
+Intuition: the class of languages decidable by polynomial sized circuit families is a superset of $P$ (polynomial time TMs).
+
+\thm{Lemma}{1}{Given a TM $M$ that decides $L$ in $t(n)$ time $\exists$ oblivious TM $M'$ that decides $L$ in $\mathcal{O}(t(n)^2)$ time, (and uses 2 tapes).}
+
+
+\elem{Proof:} For any input $x \in \{0,1\}^n$, define transcript of $M$'s execution to be: $z_1, \ldots, z_{T(n)}$, where $z_i$ denotes what's happening at step i:
+\begin{itemize}
+\item input read by each head
+\item current state of the TM (constant number of states)
+\end{itemize}
+
+Note: $z_i$ depends on $z_{i-1}, z_{i_1}, z_{i_2}$, where $z_{i_n}$ is the last time step where head $h$ was at the same position it's at in step $i$.
+
+$\therefore \exists : $ a constant sized circuit $C_i$ representing $z_i$'s dependance on $z_{i-1}, z_{i_1}, z_{i_2}$.
+
+Now, chain together the $C_i$'s for $i=1,\ldots,T(n)$.
+
+This creates a circuit of size $\mathcal{O}(T(n))$.
+
+Add a constant number of additional gates to determine if we're in an accept state. \qed
+
+% -- SECTION: Uniform vs. Non-Uniform Circuits --
+\section{Uniform vs. Non-Uniform Circuits}
+
+$\textsc{Halt} = \{1^n \mid n$ encodes TM, input pairs $\langle M, x  \rangle : M$ halts on x$ \}$
+
+Non-uniform circuit families contain the language $\textsc{Halt}$.
+
+\thm{Definition}{4}{A uniform circuit is one where the circuits can be constructed by a poly-time TM. This defines the class $P$-uniform.}
+
+\elem{Some other results:}
+\begin{enumerate}
+\item $L$ can be decided by a $P$-uniform circuit family $\equiv L \subseteq P$
+\item $P_{\text{poly}}$ = $P + $ ``advice"
+\end{enumerate}
+
+
+\thm{Definition}{5}{Class of language decidable by $T(n)$ TM's equiv with $a(n)$ advice \textsc{Dtime}$(T(n))/a(n)$}
+
+
+\elem{Claim:} $P_{\text{poly}} = \cup_{c,d} \frac{\textsc{Dtime}(n^c)}{n^d}$
+
+\elem{Proof:}
+
+First direction ($\rightarrow$): $L \in P_{\text{poly}} : $ let $\alpha_n$ be description of $C_n$
+
+Second direction ($\leftarrow$): $\exists : M (x, \alpha_n)$, hard code $\alpha_n$, use same transformation as $P \subseteq P_{\text{poly}}$ proof.
+
+% Subsection: Karp, lipton theorem.
+\subsection{Karp, Lipton Theorem '80}
+
+\thm{Theorem}{2}{$NP \subseteq P_{\text{poly}} \rightarrow PH = \Sigma_2^P$}
+
+
+% -- SECTION: Polynomial Hierarchy --
+\section{Polynomial Hierarchy}
+
+\thm{Definition}{6}{For $i \geq 1$, $L \in \Sigma_i^P$ if $\exists$ poly-time TM, $M$, and a polynomial $q$, s.t.:
+\begin{equation*}
+x \in L \equiv \exists_{u_1} : u_1 \in \{0,1\}^{q(|x|)} \forall_{u_2} : u_2 \in \{0,1\}^{q(|x|)} \ldots Q_i u_i \in \{0,1\}^{q(|x|)}
+\end{equation*}
+
+Where $Q_i = \begin{cases}
+\forall& i= 0 \mod 2 \\
+\exists& i=1 \mod 2
+\end{cases}$
+
+\begin{align*}
+\text{Polynomial Hierarchy} (PH) &= \cup_i \Sigma_i^P \\
+\Pi_i^P &= co\Sigma_i^P = \{\bar{L} : L \in \Sigma_i^P\}
+\end{align*}
+\begin{align*}
+coNP &= \Pi_i^P \\
+NP &= \Sigma_i^P
+\end{align*}
+
+So:
+\begin{equation*}
+\Sigma_i^P \subseteq \Pi_{i+1}^P \subseteq \Sigma_{i+2}^P \rightarrow PH = \cup_i \Pi_i^P
+\end{equation*}
+}
+
+% -- SECTION: Summary --
+\section{In Summary:}
+
+Circuits: Covered 6.1, 6.2, 6.3 of the book.
+
+Polynomial Hierarchy: 5.2.
+
+For next time:
+More polynomial hierarchy, theorem 5.4.
+Sasha: office 421
+
+\end{document}

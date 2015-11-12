@@ -1,0 +1,164 @@
+%==============================================================================
+% Notes for CSCI 2951-F (Fall 2015)
+%==============================================================================
+\newcommand{\thishw}{\bf Complexity Reading Group 11/12/2015}
+\newcommand{\myname}{David Abel}
+
+%==============================================================================
+% Mini Preamble.
+%==============================================================================
+
+\documentclass[11pt]{article} % 10pt article, want AMS fonts.
+\makeatletter					% Make '@' accessible.
+\pagestyle{myheadings}				% We do our own page headers.
+\def\@oddhead{\bf Oracles \hfill \myname} % Here they are.
+\skip\footins=4ex				% Space above first footnote.
+\hbadness=10000					% No "underfull hbox" messages.
+\makeatother					% Make '@' special again.
+\input{../p.tex}
+
+%==============================================================================
+% Title.
+%==============================================================================
+
+\begin{document}
+\centerline{\LARGE\thishw}
+
+% SECTION: ORACLES
+\section{Oracles}
+
+\thm{Definition}{1}{An {\it Oracle Turing Machine} $M$ has:
+\begin{itemize}
+\item Read/Write Tape (Oracle Tape)
+\item Special states ($q_{query}$, $q_{yes}$, $q_{no}$)
+\item Need to specify the Oracle itself, $O$, that is, which language $O$ decides.
+\end{itemize}}
+
+Execution of $M^O$:
+\begin{enumerate}
+\item Move to state query
+\item If $q \in O$, then next state is $q_{yes}$.
+\item If $q \not \in O$, then next state is $q_{no}$.
+\end{enumerate}
+
+$M^O$ is a complete machine, meaning it specifies a full computation.
+
+\thm{Definition}{2}{An {\it Oracle Complexity Class} $C$:
+\begin{equation}
+C = \{ L(M) \mid M \text{ is a $TM$ satisfying } P(M)\}
+\end{equation}
+
+Where $P(\cdot)$ is an arbitrary complexity class.
+
+\begin{equation}
+C^O = \{ L(M^O) \mid M^O \text{ is an Oracle $TM$ satisfying } P(M^O)\}
+\end{equation}
+}
+
+If $C$ and $D$ are complexity classes, then:
+\begin{equation}
+C^D = \cup_{o \in D} C^O
+\end{equation}
+
+
+% Subsection: Examples
+\subsection{Examples}
+
+Recall the polynomial hierarchy:
+\begin{align*}
+\Sigma_{i+1}^P &= NP^{QSAT_i} = NP^{\Sigma_i^P} = NP^{\Pi_i^P} \\
+\Pi_{i+1}^P &= (coNP)^{QSAT_i} = (coNP)^{\Sigma_i^P}
+\end{align*}
+
+
+% Section: Relativization
+\section{Relativization}
+
+\thm{Definition}{3}{An inclusion $C \subseteq D$ is said to relativize if:
+\begin{equation}
+\forall_O : C^O \subseteq D^O
+\end{equation}}
+
+The notion is also (informally) extended to proofs of inclusions.
+
+
+% Subsection: Exercises
+\subsection{Some properties}
+
+\begin{enumerate}
+\item True or False: $C = D \rightarrow \forall_A C^A = D^A$. [{\bf False}]
+\item True or False: $C \neq D \rightarrow \forall_A C^A \neq D^A$. [{\bf False}]
+\item Some properties:
+\begin{itemize}
+\item $C \subseteq C^O$
+\item $P^O \subset NP^O$
+\end{itemize}
+\item $D = PH$, then $P^D = NP^D$
+\item Choose a random oracle $O$ s.t. $P(x \in O) = \frac{1}{2}$, what is the probability that $P^O \subset Recursive$? Since there are uncountably many undecidable languages and only countably many decidable languages, with probability 1 we get an oracle that decides an undecidable language, so with probability $O$ $P^O \subseteq Recursive$.
+\end{enumerate}
+
+
+
+% SECTION: Relativization Barrier
+\section{Relativization Barrier}
+
+\thm{Theorem}{1  (Baker Gill Solvoy)}{There are oracles $A, B$, s.t. $P^A = NP^A$, but $P^B \neq NP^B$}
+
+\elem{Proof:} 
+
+% Part A
+\encircle{Part A:} $A = EC : \{(M, x, 1^n) \mid M(x) = 1 \text{ in $2^n$ steps}\}$ (note: $n$ is an arbitrary parameter).
+
+Therefore $EXP \subseteq P^A$, since you can fix $n$ to be whatever. So $NP^A \subseteq EXP$.
+
+Therefore $P^A = NP^A$. \qed
+
+% Part B
+\encircle{Part B:} Given an artbitrary $B$, we know for $U_B = \{1^n \mid \exists x \in B : |X| = n\}$, $U_B \in NP^B$
+
+Now we want $B$ s.t. $U_B \not \in P^B$.
+
+\underline{Diagonlization Argument}
+
+$\{M_i\}: OTM$.
+
+
+Sort of an inductive gig on $i$. At the `previous' stage we have determined a finite set of strings $\{x\}$ of whether $x \in B$ or not.
+
+For step $i$: run $M_i$ with input $1^{n_i}$, where $n_i > |x| \forall_x : $ s.t. $x$ is determined, for $\frac{2^n}{10}$ steps.
+
+Query: ($q$)
+\begin{itemize}
+\item If $q$ is determined before, answer consistently.
+\item If $q$ is new, answer false.
+\end{itemize}
+
+After this execution, we get some result:
+\begin{itemize}
+\item If $M_i(1^{n_i}) = 1$, then $x \not \in B, \forall_x : |x| = n_i$
+\item If $M_i(1^{n_i}) = 0$, then choose some unqueried $x : |x| = n$ and make $x \in B$.
+\end{itemize}
+
+$\therefore$ We know that $U_B \not \in DTIME^B(\frac{2^n}{10})$
+
+$\therefore$ $U_B \not \in P^B$ \qed
+
+% SECTION: Other Results
+\section{Other Results}
+
+\underline{Proposition:} Draw a random oracle $O$ s.t. for all $n$, $P( \text{ no } |x| = n \in O) = 1/2$, $P(a \text{ uniformly random } x \in O) = 1/2$.
+
+With probability 1 $P^O \neq NP^O$.
+
+
+\thm{Theorem}{2 (Bennett and Gill)}{Draw a random oracle $O$ s.t. $Pr(x \in O) = \frac{1}{2}$. With probability $1$, $P^O \neq NP^O$.}
+
+
+\thm{(False) Hypothesis}{1 (Random Oracle Hypothesis)}{Let $S$ be a complexity theoretic statement. Then $S$ is true iff, with probability $1$, $S^A$ is also true, where $A$ is draw as above ($Pr(x \in O) = \frac{1}{2}$).}
+
+Note: The above was disproven!
+
+\thm{Theorem}{3 (Chang et. al. 1994)}{With probability $1$, $IP^A \neq PSPACE^A$}
+
+
+\end{document}
