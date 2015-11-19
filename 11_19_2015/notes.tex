@@ -1,0 +1,185 @@
+%==============================================================================
+% Notes for CSCI 2951-F (Fall 2015)
+%==============================================================================
+\newcommand{\thishw}{\bf Complexity Reading Group 11/19/2015}
+\newcommand{\myname}{David Abel}
+
+%==============================================================================
+% Mini Preamble.
+%==============================================================================
+
+\documentclass[11pt]{article} % 10pt article, want AMS fonts.
+\makeatletter					% Make '@' accessible.
+\pagestyle{myheadings}				% We do our own page headers.
+\def\@oddhead{\bf Arithmetic Circuits \hfill \myname} % Here they are.
+\skip\footins=4ex				% Space above first footnote.
+\hbadness=10000					% No "underfull hbox" messages.
+\makeatother					% Make '@' special again.
+\input{../p.tex}
+
+%==============================================================================
+% Title.
+%==============================================================================
+
+\begin{document}
+\centerline{\LARGE\thishw}
+
+% SECTION: Algebraic Computation Models
+\section{Algebraic Computation Models}
+
+Three things to discuss:
+\begin{itemize}
+\item Algebraic Circuits
+\item Computation Trees
+\item Blum-Shub-Smale Machines
+\end{itemize}
+
+\thm{Definition}{1}{A {\it Field} is:
+
+\begin{itemize}
+\item A set $F$
+\item The two operators, $+$ and $\times$
+\item All elements in the set have an additive and multiplicative inverse, so implicitly $-$ and $\div$ are included as well.
+\end{itemize}}
+
+Examples: $\mathbb{R}, \mathbb{C}, \mathbb{Q}$.
+
+
+\subsection{Algebraic Circuits}
+
+Recall: boolean circuits have $\wedge, \vee, \neg$ gates.
+
+Instead, we now have $+, \times$ gates. Sometimes also allowed the constants $1$ and $-1$, and $\div$.
+
+A circuit is an algebraic circuit if it has one output.
+
+Define polynomials in many variables $f(x_1, \ldots, x_n)$. If $\div$ is allowed, get rational functions $\frac{f}{g}$.
+
+
+\midline
+
+\elem{Example:} the determinant of a matrix:
+
+$X \in M_n(\mathbb{F})$, $n \times n$ matrix s.t. the elements of $M$ are in the field $\mathbb{F}$.
+
+\begin{equation}
+det(x) = \sum_{\sigma \in S_n} (-1)^{sgn(\sigma)} \prod_{i=1}^n x_{i\sigma(i)}
+\end{equation}
+
+In general, determinant defined by a polynomial of $n!$ length.
+
+Can compute the determinant via an algebraic circuit of size $\mathcal{O}(n^3)$. Also, there is an $NC^2$ algorithm for computing determinant, gives algorithm form of size $2^{\mathcal{O}(\log^2 n)}$
+
+
+\elem{Example:} the permanent of a matrix:
+
+Given $X \in M_n(\mathbb{F})$:
+\begin{equation}
+perm(x) = \sum_{\sigma \in S_n} \prod_{i=1}^n x_{i\sigma(i)}
+\end{equation}
+
+There is {\it no known poly size circuit to compute permanent}. Note: it's \#$P$-complete\footnote{Similar to $NP$-complete, but you also count the number of accepting paths in the non-deterministic computation tree}.
+
+\midline
+
+% SECTION: Complexity
+\section{Complexity}
+
+Some definitions:
+
+\thm{Definition}{3}{If $\{f_i\}$ is a set of polynomials in $n$ variables of a field $\mathbb{F}$, then this set has poly-bounded degree if there is a $c \in \mathbb{N}$ s.t. each $f_i$ has degree at most $\mathcal{O}(n^c)$.}
+
+\thm{Definition}{4}{The class $AlgP$ is a set of polynomials of poly degree that are computable by algebraic formulas of polynomial size}
+
+
+\thm{Definition}{5}{$AlgNP$ is the the class of polynomials:
+\begin{equation}
+f(x_1,x_2,\ldots,x_n) = \sum_{e \in \{0,1\}^{m-n}} g(x_1,\ldots,x_n,e_{n+1}, \ldots, e_m)
+\end{equation}
+Where $g_n \in AlgP$}
+
+\thm{Definition}{6}{If we have two functions $f(x_1,\ldots,x_n)$ and $g(y_1,\ldots,y_m)$, we say that $f$ is {\it projection reducible} to $g$ if there is a relabeling, $\sigma: \{y_1, \ldots, y_m\} \mapsto \{0,1,x_1,\ldots,x_n\}$ such that: $f(x_1,\ldots,x_n) = g(\sigma(y_1),\ldots,\sigma(y_n))$}
+
+\midline
+
+\thm{Theorem}{1 (Valiant)}{
+\begin{enumerate}
+\item Every polynomial in $n$ variables computable by circuit of size $u$ is projection reducible to the determinant function on $u+2$ variables.
+\item Every function in $AlgNP$ is projection reducible to the permanent function.
+\end{enumerate}}
+
+Neat: since we're defined on fields, which are possibly infinite, there is not necessarily a way to create a boolean circuit for each algebraic circuit.
+
+\midline
+
+% SECTION: Blum-Shub-Smale Machines
+\section{Blum-Shub-Smale (BSS) Model}
+
+\thm{Definition}{7}{Say we have a field $\mathbb{F}$. A {\it BSS} machine is a Turing Machine in which cells store elements from the field $\mathbb{F}$. Also:
+\begin{itemize}
+\item Shift state: move left or right
+\item Branch state: current cell has value $q_1$, go to cell $q_1$, otherwise go to cell $q_2$.
+\item Computation state: replace contents of cell $a$ with $f(a)$, where $f$ is a hardwired rational function , $f = \frac{p}{q}$ for $p,q$ polynomials over $\mathbb{F}$.
+\item Register containing an element in the field.
+\end{itemize}}
+
+
+Add other abilities:
+\begin{itemize}
+\item If we add the ability to compare $a \in \mathbb{F}$, whether $a > 0$, then we can compute anything $P_{poly}$ in polynomial time (and recall that $P_{poly}$ contains undecidable problems).\footnote{Also requires an ordered field, since we're using $>$}
+\item If we add $\floor{x}$ then can do integer factorization in poly time. (Shamir)
+\end{itemize}
+
+Consider $\mathbb{F} = \mathbb{C}$.
+
+\thm{Definition}{8}{
+\begin{enumerate}
+\item Then $P_{\mathbb{C}}$ is the set of languages that can be decided by a Turing Machine over $\mathbb{C}$ in polynomial time.
+\item $NP_\mathbb{C}$ is the set of languages $L$ s.t. $\exists L_0 \in P_\mathbb{C}$, s.t. $x \in L \equiv \exists(y_1,\ldots, y_{p(n)} \in \mathbb{C}^{p(n)})$ s.t. $(x,y) \in L^0$
+\end{enumerate}}
+
+
+Can also consider 0-1-$NP_{\mathbb{C}} = \{ L \cap \{0,1\}^* \mid L \in NP_\mathbb{C}\}$. And 0-1-$NP_\mathbb{C} \subseteq PSPACE$
+
+\midline
+
+
+Just like $3SAT$ is the canonical $NP$-complete problem, we have $HN_\mathbb{C}$:
+
+\thm{Definition}{9}{The decision problem $HN_\mathbb{C}$ is: given $p_i$ polynomials in $x_1, \ldots, x_n$, do these polynomials have a common root?}
+
+Note: can convert this into $3SAT$ via: $x \vee y \vee z \leftrightarrow (1-x)(1-y)(1-z) = 0$.
+
+\thm{Theorem}{2}{0-1-$HN_\mathbb{C}$ is complete for 0-1-$NP_\mathbb{C}$.}
+
+\midline
+
+% Subsection: Undecidability
+\subsection{Undecidability}
+
+\thm{Definition}{10}{The {\it Mandelbrot Set} is:
+\begin{align*}
+a \in \mathbb{C}, P_a(z) &= z^2 + a \\
+\mathcal{M} &= \{a : P_a(0), P_a(P_a(0)), \ldots, \} \text{ is bounded }
+\end{align*}
+}
+
+If we have comparison operations, can recognize the complement of $\mathcal{M}$: $a \in \overline{\mathcal{M}} \equiv \exists_jk : |P^k_a(0)| > 2$.
+
+\thm{Theorem}{3}{$\mathcal{M}$ is undecidable}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
